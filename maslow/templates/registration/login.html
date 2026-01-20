@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}เข้าสู่ระบบ - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="text-center mb-4">
+        <div style="font-size: 3rem; margin-bottom: 16px;">🔐</div>
+        <h2>เข้าสู่ระบบ</h2>
+        <p class="text-muted">ยินดีต้อนรับกลับมา!</p>
+    </div>
+
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label">ชื่อผู้ใช้</label>
+            <input type="text" name="username" class="form-control" placeholder="username" required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">รหัสผ่าน</label>
+            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        {% if form.errors %}
+        <div class="message error mb-3">
+            <span>⚠</span>
+            <span>ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</span>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+            เข้าสู่ระบบ
+        </button>
+    </form>
+
+    <div class="text-center mt-3">
+        <span class="text-muted">ยังไม่มีบัญชี?</span>
+        <a href="{% url 'register' %}">สมัครสมาชิก</a>
+    </div>
+</div>
+{% endblock %}

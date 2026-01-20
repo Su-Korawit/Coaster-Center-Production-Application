@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ goal.transformed_goal|truncatewords:5 }} - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="text-center mb-4">
+        <div style="font-size: 4rem; margin-bottom: 16px;">🎉</div>
+        <h2>ตั้งเป้าหมายสำเร็จ!</h2>
+    </div>
+
+    <!-- Goal Summary Card -->
+    <div class="motivation-card">
+        <div class="icon">🎯</div>
+        <h3 class="title">{{ goal.transformed_goal }}</h3>
+        <p class="text">{{ goal.deep_motivation }}</p>
+    </div>
+
+    <!-- Details Card -->
+    <div class="card">
+        <h4 class="mb-3">รายละเอียดเป้าหมาย</h4>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="text-muted">เป้าหมายเดิม</span>
+                <span>{{ goal.original_goal }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="text-muted">ระดับ</span>
+                <span class="goal-level {{ goal.goal_level }}">{{ goal.get_goal_level_display }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="text-muted">เป้าหมาย</span>
+                <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
+                    {{ goal.selected_target }} {{ goal.baseline_unit }}
+                </span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="text-muted">Baseline</span>
+                <span>{{ goal.baseline_value }} {{ goal.baseline_unit }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="card">
+        <h4 class="mb-2">ความคืบหน้า</h4>
+        <div class="progress-bar" style="height: 12px;">
+            <div class="progress-fill" style="width: {{ goal.progress_percentage }}%;"></div>
+        </div>
+        <div class="d-flex justify-between mt-2">
+            <small class="text-muted">{{ goal.progress }}/{{ goal.selected_target }} {{ goal.baseline_unit }}</small>
+            <small class="text-muted">{{ goal.progress_percentage }}%</small>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+        <a href="{% url 'home' %}" class="btn btn-primary" style="flex: 1;">
+            ← กลับหน้าหลัก
+        </a>
+        <a href="{% url 'goal_create' %}" class="btn btn-outline" style="flex: 1;">
+            ➕ เพิ่มเป้าหมาย
+        </a>
+    </div>
+</div>
+{% endblock %}

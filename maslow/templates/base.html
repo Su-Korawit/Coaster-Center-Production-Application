@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Maslow - ตั้งเป้าหมายอย่างมีพลัง">
+    <title>{% block title %}Maslow{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="{% url 'home' %}" class="navbar-brand">
+                <div class="logo">🐻</div>
+                <span>Maslow</span>
+            </a>
+            <div class="navbar-menu">☰</div>
+        </nav>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div style="padding: 0 20px;">
+            {% for message in messages %}
+            <div
+                style="background: {% if 'success' in message.tags %}#dcfce7{% else %}#fee2e2{% endif %}; color: {% if 'success' in message.tags %}#166534{% else %}#991b1b{% endif %}; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Reading Progress Bar -->
+        {% block reading_progress %}{% endblock %}
+
+        <!-- Main Content -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/app.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

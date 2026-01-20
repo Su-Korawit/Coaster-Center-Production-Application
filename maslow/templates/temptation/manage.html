@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}กิจกรรมที่ชอบ - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <h2 class="text-center mb-2">🎧 Temptation Bundler</h2>
+    <p class="text-center text-muted mb-4">กิจกรรมที่ปลดล็อกได้ตอนทำเป้าหมาย</p>
+
+    {% if bundles %}
+    {% for bundle in bundles %}
+    <div class="card">
+        <div class="d-flex justify-between align-center">
+            <div class="d-flex align-center gap-2">
+                <span style="font-size: 2rem;">{{ bundle.icon }}</span>
+                <div>
+                    <h4 style="margin: 0;">{{ bundle.activity_name }}</h4>
+                    <small class="text-muted">{{ bundle.get_activity_type_display }}</small>
+                </div>
+            </div>
+            <a href="{% url 'delete_temptation' bundle.id %}" class="btn btn-icon" style="color: #ef4444;">
+                🗑️
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">🎧</div>
+        <h3 class="title">ยังไม่มีกิจกรรม</h3>
+        <p class="desc">เพิ่มกิจกรรมที่คุณชอบเพื่อใช้กับ Temptation Bundler</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'add_temptation' %}" class="btn btn-primary btn-block">
+            ➕ เพิ่มกิจกรรมใหม่
+        </a>
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'home' %}" class="text-muted">← กลับหน้าหลัก</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ article.title }} - Maslow{% endblock %}
+
+{% block reading_progress %}
+<div class="reading-progress">
+    <div class="bar" id="readingBar" style="width: 0%;"></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="article-card animate-fade-in">
+    <!-- Article Header -->
+    <div class="article-header">
+        <div class="article-nav">
+            <a href="{% url 'article_list' %}">Back</a>
+        </div>
+        <div class="article-nav">
+            {% if next_article %}
+            <a href="{% url 'article_read' next_article.id %}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Feature Title -->
+    <div class="article-title">
+        {{ article.feature_name }} ({{ article.subtitle }})
+    </div>
+
+    <!-- Article Content -->
+    <div class="article-content" id="articleContent">
+        <h3>{{ article.title }}</h3>
+
+        {{ article.content_html|safe }}
+
+        <!-- End of article marker -->
+        <div id="articleEnd" style="height: 1px;"></div>
+    </div>
+</div>
+
+<!-- Day Dots -->
+<div class="day-dots">
+    <div class="day-dot"></div>
+    <div class="day-dot active"></div>
+    <div class="day-dot"></div>
+</div>
+
+<!-- User Profile Footer -->
+<div class="profile-footer">
+    <div class="avatar">🦋</div>
+    <div class="info">
+        <div class="name">{{ user.username }}</div>
+        <div class="day-label">Day: {{ article.category }}</div>
+    </div>
+</div>
+
+<!-- Achievement Modal -->
+<div id="achievementModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 32px; border-radius: 16px; text-align: center; max-width: 300px;">
+        <div style="font-size: 4rem; margin-bottom: 16px;">🏆</div>
+        <h3>Achievement Completed!</h3>
+        <p style="color: #6b7280; margin-bottom: 16px;">อ่านบทความ "{{ article.title }}" ครบแล้ว</p>
+        <button onclick="closeModal()" class="btn btn-primary">ยอดเยี่ยม!</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const articleContent = document.getElementById('articleContent');
+    const readingBar = document.getElementById('readingBar');
+    const articleEnd = document.getElementById('articleEnd');
+    const achievementModal = document.getElementById('achievementModal');
+    let hasCompleted = false;
+
+    // Track scroll progress
+    window.addEventListener('scroll', updateProgress);
+
+    function updateProgress() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = Math.min((scrollTop / docHeight) * 100, 100);
+
+        readingBar.style.width = progress + '%';
+
+        // Check if article end is visible
+        const endRect = articleEnd.getBoundingClientRect();
+        if (endRect.top < window.innerHeight && !hasCompleted) {
+            hasCompleted = true;
+            onArticleComplete();
+        }
+
+        // Send progress to server every 10%
+        if (progress % 10 < 1) {
+            saveProgress(Math.round(progress));
+        }
+    }
+
+    function saveProgress(percent) {
+        fetch('{% url "update_article_progress" article.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ scroll_percentage: percent })
+        });
+    }
+
+    function onArticleComplete() {
+        // Mark as completed
+        fetch('{% url "complete_article" article.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            }
+        }).then(res => res.json()).then(data => {
+            if (data.success && data.new_achievement) {
+                // Show achievement modal
+                achievementModal.style.display = 'flex';
+            }
+        });
+    }
+
+    function closeModal() {
+        achievementModal.style.display = 'none';
+    }
+
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

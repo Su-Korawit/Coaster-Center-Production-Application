@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Put a Number on It - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step-dot completed"></div>
+        <div class="step-dot completed"></div>
+        <div class="step-dot completed"></div>
+        <div class="step-dot active"></div>
+    </div>
+
+    <h2 class="text-center mb-2">Put a Number on It 📊</h2>
+    <p class="text-center text-muted mb-3">บอกเราว่าตอนนี้คุณทำได้เท่าไหร่</p>
+
+    <!-- Current Goal -->
+    <div class="card mb-3">
+        <div class="goal-card">
+            <div class="icon-wrapper">🎯</div>
+            <div class="goal-content">
+                <small class="text-muted">เป้าหมายของคุณ</small>
+                <h4 class="goal-title">{{ transformed_goal }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Bubble -->
+    <div class="ai-bubble">
+        <div class="ai-avatar">🤖</div>
+        <div class="text">
+            ตอนนี้คุณทำกิจกรรมนี้ได้เท่าไหร่?<br>
+            บอกตัวเลขและหน่วยมา เช่น 10 นาที หรือ 5 หน้า
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" action="{% url 'goal_baseline' %}">
+        {% csrf_token %}
+
+        <div class="card">
+            <div style="display: flex; gap: 16px; align-items: flex-end;">
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label class="form-label">ตัวเลข</label>
+                    {{ form.baseline_value }}
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label class="form-label">หน่วย</label>
+                    {{ form.baseline_unit }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                ดู 3 ระดับเป้าหมาย →
+            </button>
+        </div>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'goal_transform' %}" class="text-muted">← ย้อนกลับ</a>
+    </div>
+</div>
+{% endblock %}

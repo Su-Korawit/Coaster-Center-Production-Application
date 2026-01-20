@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Challenger - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step-dot completed"></div>
+        <div class="step-dot completed"></div>
+        <div class="step-dot completed"></div>
+        <div class="step-dot active"></div>
+    </div>
+
+    <h2 class="text-center mb-2">Smart Challenger 🎯</h2>
+    <p class="text-center text-muted mb-3">
+        ปัจจุบัน: {{ baseline_value }} {{ baseline_unit }}<br>
+        เลือกระดับที่ท้าทายคุณ
+    </p>
+
+    <!-- AI Bubble -->
+    <div class="ai-bubble">
+        <div class="ai-avatar">🤖</div>
+        <div class="text">
+            ผมคำนวณ 3 ระดับเป้าหมายให้แล้ว<br>
+            แนะนำ Growth Goal เพราะท้าทายพอดี!
+        </div>
+    </div>
+
+    <!-- Level Selection -->
+    <form method="post" action="{% url 'goal_select_level' %}">
+        {% csrf_token %}
+        <input type="hidden" name="goal_level" id="goal_level" value="growth">
+
+        <div class="level-options">
+            <!-- Safe Goal -->
+            <div class="level-option safe" data-level="safe">
+                <div class="icon">🌱</div>
+                <div class="info">
+                    <div class="title">Safe Goal</div>
+                    <div class="value">{{ safe_target }} <span class="unit">{{ baseline_unit }}</span></div>
+                    <small class="text-muted">เพิ่มขึ้นเล็กน้อย เหมาะสำหรับเริ่มต้น</small>
+                </div>
+            </div>
+
+            <!-- Growth Goal (Recommended) -->
+            <div class="level-option growth recommended selected" data-level="growth">
+                <div class="icon">🌟</div>
+                <div class="info">
+                    <div class="title">Growth Goal</div>
+                    <div class="value">{{ growth_target }} <span class="unit">{{ baseline_unit }}</span></div>
+                    <small class="text-muted">ท้าทายพอดี สร้างการเติบโต</small>
+                </div>
+            </div>
+
+            <!-- Stretch Goal -->
+            <div class="level-option stretch" data-level="stretch">
+                <div class="icon">🔥</div>
+                <div class="info">
+                    <div class="title">Stretch Goal</div>
+                    <div class="value">{{ stretch_target }} <span class="unit">{{ baseline_unit }}</span></div>
+                    <small class="text-muted">ท้าทายสุดๆ สำหรับคนกล้าฝัน</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                ยืนยันเป้าหมาย ✨
+            </button>
+        </div>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'goal_baseline' %}" class="text-muted">← เปลี่ยน Baseline</a>
+    </div>
+</div>
+{% endblock %}

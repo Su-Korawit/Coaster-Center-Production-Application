@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}เป้าหมายใหม่ของคุณ - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step-dot completed"></div>
+        <div class="step-dot completed"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+    </div>
+
+    <h2 class="text-center mb-3">Goals Aren't Chores ✨</h2>
+
+    <!-- Motivation Card -->
+    <div class="motivation-card">
+        <div class="icon">🌟</div>
+        <h3 class="title">{{ transformed_goal }}</h3>
+        <p class="text">{{ deep_motivation }}</p>
+    </div>
+
+    <!-- Journey -->
+    <div class="card">
+        <h4 class="mb-2">เส้นทางแรงจูงใจ</h4>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: var(--gradient-primary); padding: 8px 12px; border-radius: 50%;">1</span>
+                <span>{{ original_goal }}</span>
+            </div>
+            {% for answer in why_answers %}
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: var(--bg-secondary); padding: 8px 12px; border-radius: 50%;">↓</span>
+                <span class="text-muted">{{ answer }}</span>
+            </div>
+            {% endfor %}
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: var(--gradient-success); padding: 8px 12px; border-radius: 50%;">✓</span>
+                <span style="font-weight: 600;">{{ transformed_goal }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'goal_baseline' %}" class="btn btn-primary btn-block btn-lg">
+            ใส่ตัวเลขให้เป้าหมาย →
+        </a>
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'goal_create' %}" class="text-muted">← เริ่มใหม่</a>
+    </div>
+</div>
+{% endblock %}

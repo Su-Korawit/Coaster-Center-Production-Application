@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}ตั้งเป้าหมายใหม่ - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+    </div>
+
+    <h2 class="text-center mb-3">เริ่มต้นตั้งเป้าหมาย</h2>
+
+    <!-- AI Bubble -->
+    <div class="ai-bubble">
+        <div class="ai-avatar">🤖</div>
+        <div class="text">
+            สวัสดี! วันนี้อยากทำอะไรบ้าง?<br>
+            บอกเป้าหมายของคุณมาเลย เช่น "อยากวิ่ง" หรือ "อยากอ่านหนังสือ"
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" action="{% url 'goal_create' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label">{{ form.original_goal.label }}</label>
+            {{ form.original_goal }}
+            {% if form.original_goal.errors %}
+            <small style="color: #ef4444;">{{ form.original_goal.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+            ถัดไป →
+        </button>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'home' %}" class="text-muted">← ยกเลิก</a>
+    </div>
+</div>
+{% endblock %}

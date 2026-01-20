@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}สมัครสมาชิก - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="text-center mb-4">
+        <div style="font-size: 3rem; margin-bottom: 16px;">👤</div>
+        <h2>สมัครสมาชิก</h2>
+        <p class="text-muted">เริ่มต้นการเดินทางสู่เป้าหมาย</p>
+    </div>
+
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label">ชื่อผู้ใช้</label>
+            <input type="text" name="username" class="form-control" placeholder="username" required>
+            {% if form.username.errors %}
+            <small style="color: #ef4444;">{{ form.username.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">รหัสผ่าน</label>
+            <input type="password" name="password1" class="form-control" placeholder="••••••••" required>
+            {% if form.password1.errors %}
+            <small style="color: #ef4444;">{{ form.password1.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">ยืนยันรหัสผ่าน</label>
+            <input type="password" name="password2" class="form-control" placeholder="••••••••" required>
+            {% if form.password2.errors %}
+            <small style="color: #ef4444;">{{ form.password2.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="message error mb-3">
+            {% for error in form.non_field_errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+            สมัครสมาชิก
+        </button>
+    </form>
+
+    <div class="text-center mt-3">
+        <span class="text-muted">มีบัญชีแล้ว?</span>
+        <a href="{% url 'login' %}">เข้าสู่ระบบ</a>
+    </div>
+</div>
+{% endblock %}

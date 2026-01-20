@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Day {{ current_day_number }} - Maslow{% endblock %}
+
+{% block content %}
+<!-- Swipeable Day Container -->
+<div class="swipe-container {% if current_day_number == 2 %}day2{% endif %}" id="swipeContainer">
+
+    <!-- Day 1 Page -->
+    <div class="swipe-page" id="day1Page">
+        <div class="day-header">
+            <div class="day-title">Day: 1</div>
+            <div class="day-subtitle">PART 1: CHOOSE YOUR GOAL (วางรากฐานการตั้งเป้าหมาย)</div>
+        </div>
+
+        <div class="feature-list">
+            <!-- Feature 1: Goals Aren't Chores -->
+            <div class="feature-card {% if feature_1_active %}active{% endif %}"
+                onclick="location.href='{% url 'goal_create' %}?feature=1'">
+                <div class="feature-icon">🌍</div>
+                <div class="feature-info">
+                    <h4 class="feature-title">Goals Aren't Chores (เป้าหมายต้องไม่ใช่งานบ้าน)</h4>
+                    <p class="feature-desc">แปลงเป้าหมายให้มีพลังด้วย AI</p>
+                </div>
+                <span class="feature-status">{% if feature_1_done %}✅{% else %}{% endif %}</span>
+            </div>
+
+            <!-- Feature 2: Put a Number on It -->
+            <div class="feature-card {% if feature_2_active %}active{% endif %}"
+                onclick="location.href='{% url 'goal_baseline' %}?feature=2'">
+                <div class="feature-icon">💯</div>
+                <div class="feature-info">
+                    <h4 class="feature-title">Put a Number on It (ใส่ตัวเลขกำหนดทิศทาง)</h4>
+                    <p class="feature-desc">ตั้งเป้าหมายที่วัดผลได้</p>
+                </div>
+                <span class="feature-status">{% if feature_2_done %}✅{% else %}{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{% url 'goal_create' %}" class="btn btn-lg">Start</a>
+        </div>
+    </div>
+
+    <!-- Day 2 Page -->
+    <div class="swipe-page" id="day2Page">
+        <div class="day-header">
+            <div class="day-title">Day: 2 Goal</div>
+            <div class="day-subtitle">PART 1: CHOOSE YOUR GOAL (วางรากฐานการตั้งเป้าหมาย)</div>
+        </div>
+
+        <div class="feature-list">
+            <!-- Feature 3: Incentives Matter -->
+            <div class="feature-card" onclick="location.href='{% url 'my_rewards' %}'">
+                <div class="feature-icon">🎣</div>
+                <div class="feature-info">
+                    <h4 class="feature-title">Incentives Matter (แรงจูงใจภายนอก)</h4>
+                    <p class="feature-desc">กล่องสุ่มรางวัลเมื่อทำสำเร็จ</p>
+                </div>
+                <span class="feature-status">{% if feature_3_done %}✅{% else %}{% endif %}</span>
+            </div>
+
+            <!-- Feature 4: Intrinsic Motivation -->
+            <div class="feature-card" onclick="location.href='{% url 'manage_temptations' %}'">
+                <div class="feature-icon">🧘</div>
+                <div class="feature-info">
+                    <h4 class="feature-title">Intrinsic Motivation (แรงจูงใจในและความสุข)</h4>
+                    <p class="feature-desc">จับคู่กิจกรรมที่ชอบกับเป้าหมาย</p>
+                </div>
+                <span class="feature-status">{% if feature_4_done %}✅{% else %}{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{% url 'manage_temptations' %}" class="btn btn-lg">Start</a>
+        </div>
+    </div>
+</div>
+
+<!-- Day Dots -->
+<div class="day-dots">
+    <div class="day-dot {% if current_day_number == 1 %}active{% endif %}" onclick="switchDay(1)"></div>
+    <div class="day-dot {% if current_day_number == 2 %}active{% endif %}" onclick="switchDay(2)"></div>
+    <div class="day-dot"></div>
+</div>
+
+<!-- User Profile Footer -->
+<div class="profile-footer">
+    <div class="avatar">🦋</div>
+    <div class="info">
+        <div class="name">{{ user.username }}</div>
+        <div class="day-label">Day: {{ current_day_number }}</div>
+    </div>
+</div>
+
+<script>
+    let currentDay = {{ current_day_number }};
+    let startX = 0;
+    let isDragging = false;
+
+    const container = document.getElementById('swipeContainer');
+
+    // Touch events for swipe
+    container.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+    });
+
+    container.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        const endX = e.changedTouches[0].clientX;
+        const diff = startX - endX;
+
+        if (Math.abs(diff) > 50) {
+            if (diff > 0 && currentDay < 2) {
+                // Swipe left - go to next day
+                switchDay(2);
+            } else if (diff < 0 && currentDay > 1) {
+                // Swipe right - go to previous day
+                switchDay(1);
+            }
+        }
+        isDragging = false;
+    });
+
+    function switchDay(day) {
+        currentDay = day;
+        container.className = 'swipe-container' + (day === 2 ? ' day2' : '');
+
+        // Update dots
+        document.querySelectorAll('.day-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === day - 1);
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}เริ่ม Focus Session - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <h2 class="text-center mb-2">⏱️ Focus Session</h2>
+    <p class="text-center text-muted mb-4">ตั้งเวลาทำเป้าหมายพร้อมกิจกรรมที่ชอบ</p>
+
+    <!-- Goal Card -->
+    <div class="card mb-3">
+        <div class="goal-card">
+            <div class="icon-wrapper">🎯</div>
+            <div class="goal-content">
+                <h4 class="goal-title">{{ goal.transformed_goal|default:goal.original_goal }}</h4>
+                <div class="goal-meta">
+                    <span class="goal-level {{ goal.goal_level }}">{{ goal.get_goal_level_display }}</span>
+                    <span>{{ goal.selected_target }} {{ goal.baseline_unit }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'start_focus' goal.id %}">
+        {% csrf_token %}
+
+        <!-- Duration -->
+        <div class="form-group">
+            <label class="form-label">ระยะเวลา (นาที)</label>
+            <input type="number" name="duration" class="form-control" value="{{ suggested_duration }}" min="1"
+                max="120">
+        </div>
+
+        <!-- Temptation Bundle Selection -->
+        <div class="form-group">
+            <label class="form-label">🎧 เลือกกิจกรรมที่จะปลดล็อก</label>
+
+            {% if bundles %}
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label class="level-option" style="cursor: pointer;">
+                    <input type="radio" name="bundle_id" value="" checked style="display: none;">
+                    <div class="icon" style="background: var(--bg-secondary);">🚫</div>
+                    <div class="info">
+                        <div class="title">ไม่ใช้ Temptation Bundler</div>
+                        <small class="text-muted">โฟกัสแบบธรรมดา</small>
+                    </div>
+                </label>
+
+                {% for bundle in bundles %}
+                <label class="level-option" style="cursor: pointer;">
+                    <input type="radio" name="bundle_id" value="{{ bundle.id }}" style="display: none;">
+                    <div class="icon" style="background: rgba(139, 92, 246, 0.2);">{{ bundle.icon }}</div>
+                    <div class="info">
+                        <div class="title">{{ bundle.activity_name }}</div>
+                        <small class="text-muted">{{ bundle.get_activity_type_display }}</small>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card">
+                <p class="text-muted text-center">ยังไม่มีกิจกรรม</p>
+                <a href="{% url 'add_temptation' %}" class="btn btn-secondary btn-block">
+                    ➕ เพิ่มกิจกรรมที่ชอบ
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg mt-4">
+            ▶️ เริ่ม Focus Session
+        </button>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'home' %}" class="text-muted">← ยกเลิก</a>
+    </div>
+</div>
+
+<script>
+    // Highlight selected option
+    document.querySelectorAll('.level-option').forEach(option => {
+        option.addEventListener('click', () => {
+            document.querySelectorAll('.level-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+        });
+    });
+</script>
+{% endblock %}

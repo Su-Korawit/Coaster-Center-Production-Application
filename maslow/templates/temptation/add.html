@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}เพิ่มกิจกรรมที่ชอบ - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <h2 class="text-center mb-2">🎧 Temptation Bundler</h2>
+    <p class="text-center text-muted mb-4">เพิ่มกิจกรรมที่คุณชอบทำเวลาว่าง</p>
+
+    <!-- AI Bubble -->
+    <div class="ai-bubble">
+        <div class="ai-avatar">🤖</div>
+        <div class="text">
+            คุณชอบทำอะไรเวลาว่าง?<br>
+            เราจะปลดล็อกให้ทำได้เฉพาะตอนที่คุณกำลังทำเป้าหมายอยู่!
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'add_temptation' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label">ประเภทกิจกรรม</label>
+            <select name="activity_type" class="form-control">
+                {% for value, label in activity_types %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">ชื่อกิจกรรม</label>
+            <input type="text" name="activity_name" class="form-control"
+                placeholder="เช่น Podcast ชื่ออะไร, ซีรีส์เรื่องอะไร" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Link (ถ้ามี)</label>
+            <input type="url" name="activity_url" class="form-control" placeholder="https://...">
+            <small class="text-muted">ใส่ลิงก์ไปยัง Podcast, YouTube หรืออื่นๆ</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg mt-4">
+            ➕ เพิ่มกิจกรรม
+        </button>
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'manage_temptations' %}" class="text-muted">← กลับ</a>
+    </div>
+</div>
+{% endblock %}

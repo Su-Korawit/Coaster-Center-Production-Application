@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}เปิดกล่องสุ่ม - Maslow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mystery-box-container {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .box-wrapper {
+        position: relative;
+        margin: 40px auto;
+    }
+
+    .mystery-box {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        animation: float 2s ease-in-out infinite;
+        box-shadow: 0 10px 40px rgba(118, 75, 162, 0.4);
+    }
+
+    .mystery-box.opening {
+        animation: shake 0.5s ease-in-out, explode 0.3s ease-out 0.5s forwards;
+    }
+
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0) rotate(0);
+        }
+
+        25% {
+            transform: translateX(-10px) rotate(-5deg);
+        }
+
+        75% {
+            transform: translateX(10px) rotate(5deg);
+        }
+    }
+
+    @keyframes explode {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1.5);
+            opacity: 0;
+        }
+    }
+
+    .reward-reveal {
+        display: none;
+        animation: popIn 0.5s ease forwards;
+    }
+
+    .reward-reveal.show {
+        display: block;
+    }
+
+    @keyframes popIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .reward-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+    }
+
+    .reward-icon.common {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    }
+
+    .reward-icon.rare {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .reward-icon.epic {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+
+    .reward-icon.legendary {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+    }
+
+    .rarity-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+    }
+
+    .rarity-badge.common {
+        background: #4b5563;
+    }
+
+    .rarity-badge.rare {
+        background: #2563eb;
+    }
+
+    .rarity-badge.epic {
+        background: #7c3aed;
+    }
+
+    .rarity-badge.legendary {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        animation: pulse 1s infinite;
+    }
+
+    .quote-text {
+        font-style: italic;
+        font-size: 1.2rem;
+        color: var(--primary-light);
+        padding: 20px;
+        border-left: 3px solid var(--primary);
+        margin: 20px 0;
+        text-align: left;
+    }
+
+    .sparkles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .sparkle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #fff;
+        border-radius: 50%;
+        animation: sparkle 1s ease-out forwards;
+    }
+
+    @keyframes sparkle {
+        0% {
+            transform: scale(0) translate(0, 0);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1) translate(var(--tx), var(--ty));
+            opacity: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mystery-box-container animate-fade-in">
+    {% if already_opened %}
+    <!-- Already opened -->
+    <h2 class="mb-2">รางวัลที่ได้รับ</h2>
+    <p class="text-muted mb-4">จาก: {{ goal.transformed_goal|truncatewords:5 }}</p>
+
+    <div class="reward-reveal show">
+        <div class="reward-icon {{ reward.rarity }}">
+            {{ reward.icon }}
+        </div>
+        <span class="rarity-badge {{ reward.rarity }}">{{ reward.get_rarity_display }}</span>
+        <h3>{{ reward.name }}</h3>
+        <p class="text-muted">{{ reward.description }}</p>
+
+        {% if reward.quote_text %}
+        <div class="quote-text">
+            "{{ reward.quote_text }}"
+        </div>
+        {% endif %}
+
+        {% if reward.reward_type == 'points' %}
+        <div class="card mt-3">
+            <p>+{{ reward.points_value }} แต้ม!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <!-- New box to open -->
+    <h2 class="mb-2">🎁 Mystery Box!</h2>
+    <p class="text-muted mb-4">แตะเพื่อเปิดกล่องสุ่มรางวัล</p>
+
+    <div class="box-wrapper" id="boxWrapper">
+        <div class="mystery-box" id="mysteryBox" onclick="openBox()">
+            🎁
+        </div>
+        <div class="sparkles" id="sparkles"></div>
+    </div>
+
+    <div class="reward-reveal" id="rewardReveal">
+        <div class="reward-icon {{ reward.rarity }}">
+            {{ reward.icon }}
+        </div>
+        <span class="rarity-badge {{ reward.rarity }}">{{ reward.get_rarity_display }}</span>
+        <h3>{{ reward.name }}</h3>
+        <p class="text-muted">{{ reward.description }}</p>
+
+        {% if reward.quote_text %}
+        <div class="quote-text">
+            "{{ reward.quote_text }}"
+        </div>
+        {% endif %}
+
+        {% if reward.reward_type == 'points' %}
+        <div class="card mt-3">
+            <p style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">+{{ reward.points_value }} แต้ม!</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="mt-4 d-flex gap-2" style="flex-wrap: wrap; justify-content: center;">
+        <a href="{% url 'home' %}" class="btn btn-primary">
+            ← กลับหน้าหลัก
+        </a>
+        <a href="{% url 'my_rewards' %}" class="btn btn-secondary">
+            🎁 รางวัลทั้งหมด
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let boxOpened = false;
+
+    function openBox() {
+        if (boxOpened) return;
+        boxOpened = true;
+
+        const box = document.getElementById('mysteryBox');
+        const reveal = document.getElementById('rewardReveal');
+        const sparkles = document.getElementById('sparkles');
+
+        // Add shake animation
+        box.classList.add('opening');
+
+        // Create sparkles
+        for (let i = 0; i < 20; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = '50%';
+            sparkle.style.top = '50%';
+            sparkle.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
+            sparkle.style.setProperty('--ty', `${(Math.random() - 0.5) * 200}px`);
+            sparkle.style.animationDelay = `${0.5 + Math.random() * 0.3}s`;
+            sparkles.appendChild(sparkle);
+        }
+
+        // Show reward after animation
+        setTimeout(() => {
+            box.style.display = 'none';
+            reveal.classList.add('show');
+        }, 800);
+    }
+</script>
+{% endblock %}

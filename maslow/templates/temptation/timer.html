@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+
+{% block title %}Focus Timer - Maslow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timer-container {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .timer-circle {
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary) calc(var(--progress) * 1%),
+                var(--bg-secondary) 0%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 30px auto;
+        position: relative;
+    }
+
+    .timer-circle::before {
+        content: '';
+        width: 220px;
+        height: 220px;
+        background: var(--bg-primary);
+        border-radius: 50%;
+        position: absolute;
+    }
+
+    .timer-display {
+        position: relative;
+        z-index: 1;
+    }
+
+    .timer-time {
+        font-size: 3rem;
+        font-weight: 700;
+        font-family: 'Inter', monospace;
+    }
+
+    .timer-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .content-card {
+        background: var(--bg-card);
+        border: 2px solid var(--primary);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        margin: 20px 0;
+        position: relative;
+        transition: var(--transition-normal);
+    }
+
+    .content-card.locked {
+        border-color: var(--text-muted);
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .content-card.locked::after {
+        content: '🔒 หยุดพักอยู่';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--bg-secondary);
+        padding: 10px 20px;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+    }
+
+    .content-link {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+
+    .content-link:hover {
+        color: var(--primary);
+    }
+
+    .play-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .controls {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .controls .btn {
+        flex: 1;
+        max-width: 150px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-badge.active {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .status-badge.paused {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="timer-container animate-fade-in">
+    <h2 class="mb-2">⏱️ Focus Session</h2>
+
+    <span class="status-badge {{ session.status }}" id="statusBadge">
+        {% if session.status == 'active' %}▶️ กำลังทำอยู่{% else %}⏸️ หยุดพัก{% endif %}
+    </span>
+
+    <!-- Goal Info -->
+    <div class="card mt-3" style="text-align: left;">
+        <div class="goal-card">
+            <div class="icon-wrapper" style="width: 40px; height: 40px; font-size: 1.2rem;">🎯</div>
+            <div class="goal-content">
+                <h4 class="goal-title" style="font-size: 0.95rem;">{{
+                    goal.transformed_goal|default:goal.original_goal|truncatewords:8 }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timer Circle -->
+    <div class="timer-circle" id="timerCircle" style="--progress: {{ session.progress_percentage }};">
+        <div class="timer-display">
+            <div class="timer-time" id="timerDisplay">00:00</div>
+            <div class="timer-label">เหลืออีก</div>
+        </div>
+    </div>
+
+    <!-- Temptation Bundle Content -->
+    {% if bundle %}
+    <div class="content-card {% if not session.content_unlocked %}locked{% endif %}" id="contentCard">
+        <h4 class="mb-2">🎧 กิจกรรมที่ปลดล็อก</h4>
+        {% if bundle.activity_url %}
+        <a href="{{ bundle.activity_url }}" target="_blank" class="content-link" id="contentLink">
+            <div class="play-icon">{{ bundle.icon }}</div>
+            <div>
+                <strong>{{ bundle.activity_name }}</strong>
+                <br><small class="text-muted">แตะเพื่อเปิด</small>
+            </div>
+        </a>
+        {% else %}
+        <div class="content-link">
+            <div class="play-icon">{{ bundle.icon }}</div>
+            <div>
+                <strong>{{ bundle.activity_name }}</strong>
+                <br><small class="text-muted">{{ bundle.get_activity_type_display }}</small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()">
+            ⏸️ พัก
+        </button>
+        <button class="btn btn-outline" id="stopBtn" onclick="stopSession(false)"
+            style="color: #ef4444; border-color: #ef4444;">
+            ⏹️ หยุด
+        </button>
+    </div>
+
+    <div class="mt-4">
+        <button class="btn btn-primary btn-block btn-lg" id="completeBtn" onclick="stopSession(true)" disabled>
+            ✅ เสร็จสิ้น
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const sessionId = {{ session.id }};
+    const targetSeconds = {{ target_seconds }};
+    let elapsedSeconds = {{ elapsed_seconds }};
+    let isPaused = {{ session.status| yesno: "false,true,false" }};
+    let timerInterval = null;
+
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerCircle = document.getElementById('timerCircle');
+    const contentCard = document.getElementById('contentCard');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const completeBtn = document.getElementById('completeBtn');
+    const statusBadge = document.getElementById('statusBadge');
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateDisplay() {
+        const remaining = Math.max(targetSeconds - elapsedSeconds, 0);
+        const progress = Math.min((elapsedSeconds / targetSeconds) * 100, 100);
+
+        timerDisplay.textContent = formatTime(remaining);
+        timerCircle.style.setProperty('--progress', progress);
+
+        // Enable complete button when time is up
+        if (remaining <= 0) {
+            completeBtn.disabled = false;
+            completeBtn.textContent = '🎉 ยินดีด้วย! แตะเพื่อจบ';
+            stopTimer();
+        }
+    }
+
+    function startTimer() {
+        if (timerInterval) return;
+        timerInterval = setInterval(() => {
+            if (!isPaused) {
+                elapsedSeconds++;
+                updateDisplay();
+
+                // Sync with server every 10 seconds
+                if (elapsedSeconds % 10 === 0) {
+                    syncTimer();
+                }
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    async function syncTimer() {
+        try {
+            await fetch(`/focus/${sessionId}/update/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ elapsed_seconds: elapsedSeconds })
+            });
+        } catch (e) {
+            console.error('Sync error:', e);
+        }
+    }
+
+    async function togglePause() {
+        try {
+            const res = await fetch(`/focus/${sessionId}/pause/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            });
+            const data = await res.json();
+
+            isPaused = data.status === 'paused';
+
+            // Update UI
+            pauseBtn.innerHTML = isPaused ? '▶️ ต่อ' : '⏸️ พัก';
+            statusBadge.className = `status-badge ${data.status}`;
+            statusBadge.innerHTML = isPaused ? '⏸️ หยุดพัก' : '▶️ กำลังทำอยู่';
+
+            // Lock/unlock content
+            if (contentCard) {
+                if (data.content_unlocked) {
+                    contentCard.classList.remove('locked');
+                } else {
+                    contentCard.classList.add('locked');
+                }
+            }
+        } catch (e) {
+            console.error('Pause error:', e);
+        }
+    }
+
+    async function stopSession(completed) {
+        try {
+            await syncTimer();
+
+            const res = await fetch(`/focus/${sessionId}/end/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ completed: completed })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                if (completed) {
+                    // Redirect to mystery box if completed
+                    window.location.href = `/goal/${data.goal_id}/mystery-box/`;
+                } else {
+                    window.location.href = '/';
+                }
+            }
+        } catch (e) {
+            console.error('Stop error:', e);
+        }
+    }
+
+    function getCSRFToken() {
+        const name = 'csrftoken';
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Initialize
+    updateDisplay();
+    if (!isPaused) {
+        startTimer();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Maslow - ตั้งเป้าหมายอย่างมีพลัง{% endblock %}
+
+{% block content %}
+<div class="landing-hero">
+    <div class="landing-logo animate-float">
+        🎯
+    </div>
+
+    <h1 class="landing-title">Maslow</h1>
+    <p class="landing-subtitle">
+        ตั้งเป้าหมายที่มีพลัง<br>ค้นหาแรงจูงใจที่แท้จริงของคุณ
+    </p>
+
+    <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+        เริ่มต้นใช้งาน
+    </a>
+
+    <p class="text-muted mt-2">
+        มีบัญชีแล้ว? <a href="{% url 'login' %}">เข้าสู่ระบบ</a>
+    </p>
+
+    <div class="landing-features">
+        <div class="feature-item">
+            <span class="icon">🪜</span>
+            <span class="text">The Why Ladder - AI ช่วยค้นหาเหตุผลที่แท้จริง</span>
+        </div>
+        <div class="feature-item">
+            <span class="icon">📊</span>
+            <span class="text">Smart Challenger - เป้าหมาย 3 ระดับที่เหมาะกับคุณ</span>
+        </div>
+        <div class="feature-item">
+            <span class="icon">🏆</span>
+            <span class="text">Achievement System - ปลดล็อคความสำเร็จ</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

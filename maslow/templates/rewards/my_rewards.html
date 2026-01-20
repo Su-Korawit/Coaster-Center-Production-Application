@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}รางวัลของฉัน - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <h2 class="text-center mb-2">🎁 รางวัลของฉัน</h2>
+    <p class="text-center text-muted mb-4">สะสมแล้ว {{ total_count }} ชิ้น</p>
+
+    {% if rewards %}
+    {% if rewards_by_rarity.legendary %}
+    <div class="mb-4">
+        <h4 style="color: #f59e0b;">✨ Legendary</h4>
+        <div class="d-flex gap-2" style="flex-wrap: wrap;">
+            {% for r in rewards_by_rarity.legendary %}
+            <div class="card" style="flex: 1; min-width: 140px; text-align: center; border-color: #f59e0b;">
+                <div style="font-size: 2rem;">{{ r.reward.icon }}</div>
+                <p style="font-size: 0.85rem; margin-top: 8px;">{{ r.reward.name }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if rewards_by_rarity.epic %}
+    <div class="mb-4">
+        <h4 style="color: #8b5cf6;">💎 Epic</h4>
+        <div class="d-flex gap-2" style="flex-wrap: wrap;">
+            {% for r in rewards_by_rarity.epic %}
+            <div class="card" style="flex: 1; min-width: 140px; text-align: center; border-color: #8b5cf6;">
+                <div style="font-size: 2rem;">{{ r.reward.icon }}</div>
+                <p style="font-size: 0.85rem; margin-top: 8px;">{{ r.reward.name }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if rewards_by_rarity.rare %}
+    <div class="mb-4">
+        <h4 style="color: #3b82f6;">💠 Rare</h4>
+        <div class="d-flex gap-2" style="flex-wrap: wrap;">
+            {% for r in rewards_by_rarity.rare %}
+            <div class="card" style="flex: 1; min-width: 140px; text-align: center; border-color: #3b82f6;">
+                <div style="font-size: 2rem;">{{ r.reward.icon }}</div>
+                <p style="font-size: 0.85rem; margin-top: 8px;">{{ r.reward.name }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if rewards_by_rarity.common %}
+    <div class="mb-4">
+        <h4 style="color: #6b7280;">⭐ Common</h4>
+        <div class="d-flex gap-2" style="flex-wrap: wrap;">
+            {% for r in rewards_by_rarity.common %}
+            <div class="card" style="flex: 1; min-width: 140px; text-align: center;">
+                <div style="font-size: 2rem;">{{ r.reward.icon }}</div>
+                <p style="font-size: 0.85rem; margin-top: 8px;">{{ r.reward.name }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">🎁</div>
+        <h3 class="title">ยังไม่มีรางวัล</h3>
+        <p class="desc">ทำเป้าหมายให้สำเร็จเพื่อเปิดกล่องสุ่ม!</p>
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            ← กลับหน้าหลัก
+        </a>
+    </div>
+</div>
+{% endblock %}

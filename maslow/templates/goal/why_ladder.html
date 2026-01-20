@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}The Why Ladder {{ step }}/{{ total_steps }} - Maslow{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step-dot completed"></div>
+        {% for i in "12" %}
+        {% if forloop.counter <= step %} <div class="step-dot active">
+    </div>
+    {% else %}
+    <div class="step-dot"></div>
+    {% endif %}
+    {% endfor %}
+    <div class="step-dot"></div>
+</div>
+
+<h2 class="text-center mb-2">Day: 1/{{ step }}</h2>
+<p class="text-center text-muted mb-3">The Why Ladder 🪜</p>
+
+<!-- Original Goal Card -->
+<div class="card mb-3">
+    <div class="goal-card">
+        <div class="icon-wrapper">🎯</div>
+        <div class="goal-content">
+            <small class="text-muted">เป้าหมายของคุณ</small>
+            <h4 class="goal-title">{{ original_goal }}</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Previous Answers -->
+{% if previous_answers %}
+<div class="mb-3">
+    {% for answer in previous_answers %}
+    <div class="card-glass"
+        style="padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 8px; border-left: 3px solid var(--primary);">
+        <small class="text-muted">คำตอบ {{ forloop.counter }}</small>
+        <p style="margin: 4px 0 0;">{{ answer }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- AI Question -->
+<div class="ai-bubble">
+    <div class="ai-avatar">🤖</div>
+    <div class="text" data-typing>
+        {{ ai_question }}
+    </div>
+</div>
+
+<!-- Form -->
+<form method="post" action="{% url 'goal_why' step %}">
+    {% csrf_token %}
+
+    <div class="form-group">
+        {{ form.answer }}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block btn-lg">
+        {% if step >= total_steps %}
+        ดูเป้าหมายใหม่ ✨
+        {% else %}
+        ถัดไป →
+        {% endif %}
+    </button>
+</form>
+
+<div class="text-center mt-3">
+    <a href="{% url 'goal_create' %}" class="text-muted">← เริ่มใหม่</a>
+</div>
+</div>
+{% endblock %}
